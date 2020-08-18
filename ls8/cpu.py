@@ -11,12 +11,21 @@ class CPU:
         self.ram = [0] * 32 # 32 8-bit addresses
         self.reg = [0] * 8 # 8 general-purpose registers
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
+
+        with open (filename) as f:
+            for line in f:
+                comment_split = line.split("#")
+                bits = comment_split[0].strip()
+                if bits == '':
+                    continue
+                decimal = int(bits, 2)
+                print(bits)
 
         program = [
             # From print8.ls8
@@ -92,6 +101,6 @@ class CPU:
 
 cpu = CPU()
 
-cpu.load()
+cpu.load("./ls8/examples/print8.ls8")
 cpu.run()
 
