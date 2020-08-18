@@ -19,27 +19,14 @@ class CPU:
         # For now, we've just hardcoded a program:
 
         with open (filename) as f:
-            for line in f:
-                comment_split = line.split("#")
-                bits = comment_split[0].strip()
-                if bits == '':
+            for instruction in f:
+                comment_split = instruction.split("#")
+                byte = comment_split[0].strip()
+                if byte == '':
                     continue
-                decimal = int(bits, 2)
-                print(bits)
-
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+                decimal = int(byte, 2)
+                self.ram[address] = decimal
+                address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -90,6 +77,9 @@ class CPU:
             elif IR == 0b01000111: #PRN
                 print(self.reg[operand_a])
                 op_size = 1
+            elif IR == 0b10100010: #MUL
+                self.reg[operand_a] *= self.reg[operand_b]
+                op_size = 2
             elif IR == 0b00000001: #HLT
                 running = self.HLT()
 
@@ -99,8 +89,11 @@ class CPU:
         return False
 
 
-cpu = CPU()
+cpu1 = CPU()
+cpu2 = CPU()
 
-cpu.load("./ls8/examples/print8.ls8")
-cpu.run()
+cpu1.load("./ls8/examples/print8.ls8")
+cpu1.run()
+cpu2.load("./ls8/examples/mult.ls8")
+cpu2.run()
 
