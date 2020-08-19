@@ -7,28 +7,27 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.pc = 0
+        self.sp = 7
+        self.ram = [0] * 256 # 256 8-bit addresses
+        self.reg = [0] * 8 # 8 general-purpose registers
 
-    def load(self):
+    def load(self, filename):
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        with open (filename) as f:
+            for instruction in f:
+                comment_split = instruction.split("#")
+                byte = comment_split[0].strip()
+                if byte == '':
+                    continue
+                decimal = int(byte, 2)
+                self.ram[address] = decimal
+                address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -60,6 +59,54 @@ class CPU:
 
         print()
 
+    def ram_read(self, MAR):
+        return self.ram[MAR]
+
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] = MDR
+
     def run(self):
         """Run the CPU."""
-        pass
+        running = True
+        self.reg[self.sp] = 0xF4 #SP = 244
+        while running:
+            operand_a = self.ram_read(self.pc+1)
+            operand_b = self.ram_read(self.pc+2)
+            IR = self.ram_read(self.pc)
+            if IR == 0b10000010: #LDI
+                self.reg[operand_a] = operand_b
+                op_size = 2
+            elif IR == 0b01000111: #PRN
+                print(self.reg[operand_a])
+                op_size = 1
+            elif IR == 0b10100010: #MUL
+                self.reg[operand_a] *= self.reg[operand_b]
+                op_size = 2
+            elif IR == 0b01000101: #PUSH
+                self.reg[self.sp] -= 1
+                self.ram_write(self.reg[self.sp], self.reg[operand_a])
+                op_size = 1
+            elif IR == 0b01000110: #POP
+                self.reg[operand_a] = self.ram_read(self.reg[self.sp])
+                self.reg[self.sp] += 1
+                op_size = 1
+            elif IR == 0b00000001: #HLT
+                running = self.HLT()
+
+            self.pc += op_size + 1
+
+    def HLT(self):
+        return False
+
+
+cpu1 = CPU()
+cpu2 = CPU()
+cpu3 = CPU()
+
+cpu1.load("./ls8/examples/print8.ls8")
+cpu1.run()
+cpu2.load("./ls8/examples/mult.ls8")
+cpu2.run()
+cpu3.load("./ls8/examples/stack.ls8")
+cpu3.run()
+
