@@ -8,7 +8,8 @@ class CPU:
     def __init__(self):
         """Construct a new CPU."""
         self.pc = 0
-        self.ram = [0] * 32 # 32 8-bit addresses
+        self.sp = 7
+        self.ram = [0] * 256 # 256 8-bit addresses
         self.reg = [0] * 8 # 8 general-purpose registers
 
     def load(self, filename):
@@ -67,6 +68,7 @@ class CPU:
     def run(self):
         """Run the CPU."""
         running = True
+        self.reg[self.sp] = 0xF4 #SP = 244
         while running:
             operand_a = self.ram_read(self.pc+1)
             operand_b = self.ram_read(self.pc+2)
@@ -80,6 +82,14 @@ class CPU:
             elif IR == 0b10100010: #MUL
                 self.reg[operand_a] *= self.reg[operand_b]
                 op_size = 2
+            elif IR == 0b01000101: #PUSH
+                self.reg[self.sp] -= 1
+                self.ram_write(self.reg[self.sp], self.reg[operand_a])
+                op_size = 1
+            elif IR == 0b01000110: #POP
+                self.reg[operand_a] = self.ram_read(self.reg[self.sp])
+                self.reg[self.sp] += 1
+                op_size = 1
             elif IR == 0b00000001: #HLT
                 running = self.HLT()
 
@@ -91,9 +101,12 @@ class CPU:
 
 cpu1 = CPU()
 cpu2 = CPU()
+cpu3 = CPU()
 
 cpu1.load("./ls8/examples/print8.ls8")
 cpu1.run()
 cpu2.load("./ls8/examples/mult.ls8")
 cpu2.run()
+cpu3.load("./ls8/examples/stack.ls8")
+cpu3.run()
 
