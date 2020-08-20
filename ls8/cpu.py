@@ -133,17 +133,24 @@ class CPU:
                 
 
 
-# cpu1 = CPU()
-# cpu2 = CPU()
-# cpu3 = CPU()
+cpu1 = CPU()
+cpu2 = CPU()
+cpu3 = CPU()
 cpu4 = CPU()
 
-# cpu1.load("./ls8/examples/print8.ls8")
-# cpu1.run()
-# cpu2.load("./ls8/examples/mult.ls8")
-# cpu2.run()
-# cpu3.load("./ls8/examples/stack.ls8")
-# cpu3.run()
+print("Print8.ls8")
+cpu1.load("./ls8/examples/print8.ls8")
+cpu1.run()
+print()
+print("Mult.ls8")
+cpu2.load("./ls8/examples/mult.ls8")
+cpu2.run()
+print()
+print("Stack.ls8")
+cpu3.load("./ls8/examples/stack.ls8")
+cpu3.run()
+print()
+print("Call.ls8")
 cpu4.load("./ls8/examples/call.ls8")
 cpu4.run()
 
