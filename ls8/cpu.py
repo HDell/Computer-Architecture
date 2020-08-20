@@ -96,12 +96,15 @@ class CPU:
                 self.ram_write(self.reg[self.sp], self.pc+2)
                 # set the pc to the subroutines address
                 self.pc = self.reg[OP_A]
-                op_size = 0 
+                op_size = -1
             elif IR == 0b00010001: #RET
                 # POP return address from stack to store in pc
                 self.pc = self.ram_read(self.reg[self.sp])
                 self.reg[self.sp] += 1
-                op_size = 0 
+                op_size = -1
+            elif IR == 0b10100000: #ADD
+                self.reg[OP_A] += self.reg[OP_B]
+                op_size = 2
             elif IR == 0b00000001: #HLT
                 running = self.HLT()
 
